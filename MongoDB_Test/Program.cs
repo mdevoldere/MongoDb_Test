@@ -33,7 +33,8 @@ namespace MongoDB_Test
         {
             new Person() { FirstName = "Anne", LastName = "Onyme", Age = 37, Interests = new List<string>() { "Nothing" } },
             new Person() { FirstName = "Handy", LastName = "Capet", Age = 18, Interests = new List<string>() { "Bolognese", "Game of Thrones" } },
-            new Person() { FirstName = "Marc", LastName = "Cram", Age = 43, Interests = new List<string>() { "Money" } }
+            new Person() { FirstName = "Marc", LastName = "Cram", Age = 43, Interests = new List<string>() { "Money" } },
+            new Person() { FirstName = "Henri", LastName = "Cram", Age = 21, Interests = new List<string>() { "Money" } }
         };
 
         // Création d'une instance du client MongoDB.
@@ -76,6 +77,7 @@ namespace MongoDB_Test
 
             Console.WriteLine(resultAll.Count().ToString() + " personnes trouvées pour le filtre \"x => true\"");
 
+
             foreach (Person p in resultAll)
             {
                 Console.WriteLine(p.Id + ": " +  p.FirstName + " " + p.LastName + " (" + p.Age.ToString() + ")");
@@ -83,8 +85,34 @@ namespace MongoDB_Test
 
             Console.ReadLine();
 
+            // Récupération d'UN élément 
+            Person person = collection.Find(x => x.LastName == "Cram").ToList().FirstOrDefault();
+
+           
+            // Définition d'un filtre de recherche
+            var filter = Builders<Person>.Filter.Eq(x => x.LastName, "Cram");
+
+            // Définition des attributs à mettre à jour
+            var update = Builders<Person>.Update.Set(x => x.LastName, "Barbelivien");
+
+            //Mise à jour de la collection (Uniquement le 1er élément correspondant au filtre)
+            collection.UpdateOne(filter, update);
+
+            // Mise à jour de la collection (Tous les éléments correspondant au filtre)
+           // collection.UpdateMany(filter, update);
+
+            // Récupération de tous les éléments
+            resultAll = collection.Find(x => true).ToList();
+
+            Console.WriteLine(resultAll.Count().ToString() + " personnes trouvées pour le filtre \"x => true\"");
 
 
+            foreach (Person p in resultAll)
+            {
+                Console.WriteLine(p.Id + ": " + p.FirstName + " " + p.LastName + " (" + p.Age.ToString() + ")");
+            }
+
+            Console.ReadLine();
 
             // On vide la collection
             db.DropCollection("persons");
